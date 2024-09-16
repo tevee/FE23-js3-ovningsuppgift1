@@ -1,51 +1,65 @@
-let homeDOM = document.getElementsByTagName('a')[0];
-let aboutDOM = document.getElementsByTagName('a')[1];
-let contactDOM = document.getElementsByTagName('a')[2];
+const homeDOM = document.getElementsByTagName('a')[0];
+const aboutDOM = document.getElementsByTagName('a')[1];
+const contactDOM = document.getElementsByTagName('a')[2];
+const contentDOM = document.getElementById('content');
 
 window.onload = fetchPage('home.html');
 
-window.addEventListener('popstate', () => {
+window.addEventListener('popstate', async () => {
     switch(history.state.page) {
         case 0:
-            fetchPage('home.html')
+            await fetchPage('home.html')
             break;
         case 1:
-            fetchPage('about.html')
+            await fetchPage('about.html')
             break;
         case 2:
-            fetchPage('contact.html')
+            await fetchPage('contact.html')
             break;
         default:
-            fetchPage('home.html')
+            await fetchPage('home.html')
     }
-    
 })
 
-homeDOM.addEventListener('click', event => {
+homeDOM.addEventListener('click', async (event) => {
     history.pushState({page: 0}, "", "/home");
-    fetchPage('home.html');
-    // alert(history.state.page);
+    await fetchPage('home.html');
 })
 
-aboutDOM.addEventListener('click', event => {
+aboutDOM.addEventListener('click', async (event) => {
     history.pushState({page: 1}, "", "/about");
-    fetchPage('about.html');
-    // alert(history.state.page);
+    await fetchPage('about.html');
 })
 
-contactDOM.addEventListener('click', event => {
+contactDOM.addEventListener('click', async (event) => {
     history.pushState({page: 2}, "", "/contact");
-    fetchPage('contact.html');
-    // alert(history.state.page);
+    await fetchPage('contact.html');
 })
 
-let contentDOM = document.getElementById('content');
 
-function fetchPage(filename) {
+async function fetchPage(filename) {
     if(typeof filename != 'string') return; //guard clause
-// sätt in progressbar animation
+
+    // sätt in progressbar animation
+    const spinner = createpinnerImg();
+    contentDOM.appendChild(spinner);
+
     fetch(filename)
         .then((result) => {
+            console.log(result);
             return result.text();
-        }).then((data) => {contentDOM.innerHTML = data})
+        }).then((data) => {
+            contentDOM.innerHTML = data;
+        }).catch(error => {
+            contentDOM.innerHTML = `Error fetching data`;
+            console.log(error);    
+        }).finally(() => {
+            spinner.remove();
+        })
+}
+
+function createpinnerImg() {
+    const img = document.createElement('img')
+    img.src = 'https://reactnativeexample.com/content/images/2019/02/android-spinner.gif';
+    return img;
 }
